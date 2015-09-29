@@ -1,4 +1,5 @@
 import posixpath
+import stat
 
 class Manager(object):
     def __init__(self, bundle_name, device_id):
@@ -10,6 +11,8 @@ class Manager(object):
         # If no device id is given, only usb attached devices are considered
         if self.device_id == None:
             usb_only = True
+        else:
+            usb_only = False
 
         devices = self.list_devices(usb_only = usb_only)
 
@@ -17,6 +20,7 @@ class Manager(object):
             if len(devices) == 0:
                 raise Exception("No USB attached device was found")
 
+        self.device = None
         for info in devices:
             name = info["id"]
             if name == self.device_id or self.device_id == None:
@@ -64,17 +68,10 @@ class Manager(object):
     def enumerate_ios_dir(self, path = "/", file_only = False):
         for name in self.afc.listdir(path):
             full_path = posixpath.join(path, name)
-            try:
-                info = self.afc.lstat(full_path)
-                if info.st_ifmt != stat.S_IFREG:
-                    if not file_only:
-                        yield full_path
-                    self.enumerate_ios_dir(full_path, file_only = file_only)
-                else:
+            info = self.afc.lstat(full_path)
+            if info.st_ifmt != stat.S_IFREG:
+                if not file_only:
                     yield full_path
-            except Exception, e:
-                continue
-                print e
-
-
- 
+                self.enumerate_ios_dir(full_path, file_only = file_only)
+            else:
+                yield full_path
