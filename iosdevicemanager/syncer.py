@@ -154,7 +154,12 @@ class Syncer(manager.Manager):
                 continue
 
             # Open input file
-            src_file = src_obj.open(u'rb')
+            try:
+                src_file = src_obj.open(u'rb')
+            except: 
+                print "Could not open source path: "+src_path
+                continue
+
             # Seek if needed
             if partial != 0:
                 src_file.seek(partial)

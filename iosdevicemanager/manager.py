@@ -68,10 +68,18 @@ class Manager(object):
     def enumerate_ios_dir(self, path = "/", file_only = False):
         for name in self.afc.listdir(path):
             full_path = posixpath.join(path, name)
-            info = self.afc.lstat(full_path)
-            if info.st_ifmt != stat.S_IFREG:
+            try:
+                info = self.afc.lstat(full_path)
+            except: 
+                info = None
+                print "could not stat remote file: "+full_path
+
+
+            if info is not None and info.st_ifmt != stat.S_IFREG:
                 if not file_only:
                     yield full_path
-                self.enumerate_ios_dir(full_path, file_only = file_only)
+                for y in self.enumerate_ios_dir(full_path, file_only =
+                        file_only):
+                    yield y
             else:
                 yield full_path
