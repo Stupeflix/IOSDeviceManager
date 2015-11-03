@@ -2,6 +2,7 @@ import manager
 import stat
 import os
 import traceback
+import posixpath
 
 class IOSFile(object):
     def __init__(self, afc, path):
