@@ -70,7 +70,6 @@ class LocalFile(object):
         src_file_path_rel = src_file_path[len(src_dir):]
         if src_file_path_rel.startswith("/"):
             src_file_path_rel = src_file_path_rel[1:]
-        print dest_dir
 
         ret = os.path.join(dest_dir, src_file_path_rel)
         return ret
@@ -210,3 +209,7 @@ class Syncer(manager.Manager):
     def upload(self, src, dest):
         enumerator = self.enumerate_local_dir(src, True)
         self.transfert(enumerator, src, dest, LocalFile, IOSFile)
+
+    def rm_dest(self, dest):
+        for l in self.afc.listdir(dest):
+            self.afc.remove(os.path.join(dest, l))
