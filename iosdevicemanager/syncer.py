@@ -211,5 +211,10 @@ class Syncer(manager.Manager):
         self.transfert(enumerator, src, dest, LocalFile, IOSFile)
 
     def rm_dest(self, dest):
+        try:
+            self.afc.stat(dest)
+        except OSError, e:
+            if e.errno == "Unable to open path:":
+                return
         for l in self.afc.listdir(dest):
             self.afc.remove(os.path.join(dest, l))
