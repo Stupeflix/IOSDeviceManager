@@ -3,7 +3,7 @@ import stat
 
 class Manager(object):
     def __init__(self, bundle_name, device_id):
-        from MobileDevice import afcapplicationdirectory
+        from MobileDevice import AFCApplicationDirectory
         # Important : convert to unicode, or nothing will work
         self.bundle_name = unicode(bundle_name)
         self.device_id = device_id
@@ -32,7 +32,7 @@ class Manager(object):
 
         self.device.connect(False)
 
-        self.afc = afcapplicationdirectory.AFCApplicationDirectory(self.device, self.bundle_name)
+        self.afc = AFCApplicationDirectory(self.device, self.bundle_name)
 
     @classmethod
     def list_devices(self, usb_only = True, full_info = False):
