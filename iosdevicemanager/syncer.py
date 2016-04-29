@@ -210,11 +210,18 @@ class Syncer(manager.Manager):
         enumerator = self.enumerate_local_dir(src, True)
         self.transfert(enumerator, src, dest, LocalFile, IOSFile)
 
-    def rm_dest(self, dest):
+    def rm_dest(self, dest, recursive=False):
         try:
             self.afc.stat(dest)
         except OSError, e:
             if e.errno == "Unable to open path:":
                 return
+        self._rm_dir(dest, recursive)
+
+    def _rm_dir(self, dest, recursive):
         for l in self.afc.listdir(dest):
-            self.afc.remove(os.path.join(dest, l))
+            full_path = os.path.join(dest, l)
+
+            if recursive and IOSFile(self.afc, full_path).is_dir():
+                self._rm_dir(full_path, recursive)
+            self.afc.remove(full_path)
