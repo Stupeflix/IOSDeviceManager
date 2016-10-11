@@ -3,6 +3,10 @@ import stat
 import os
 import traceback
 import posixpath
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class IOSFile(object):
     def __init__(self, afc, path):
@@ -21,8 +25,7 @@ class IOSFile(object):
         try:
             self.stat()
             return True
-        except OSError, e:
-            print "OSError", e
+        except OSError:
             return False
 
     def stat(self):
@@ -95,7 +98,7 @@ class LocalFile(object):
         return self.stat().st_size
 
     def open(self, mode):
-        print "local open", self.path, mode
+        logger.info("local open %s %s" % (self.path, mode))
 
         return open(self.path, mode + "b")
 
@@ -141,23 +144,23 @@ class Syncer(manager.Manager):
                     raise Exception("Type is different : %d, %d for %s, %s", src_obj.is_dir(), dest_obj.is_dir(), src_path, dest_path)
                 elif src_obj.m_time() > dest_obj.m_time():
                     # We should copy if times are bad
-                    print "Modification time is greater", src_obj.m_time(), dest_obj.m_time()
+                    logger.info("Modification time is greater", src_obj.m_time(), dest_obj.m_time())
                     copy = True
                 elif src_obj.size() > dest_obj.size():
                     # If size is different, we will resume copying
-                    print "Size is different: %s > %s" % (src_obj.size(), dest_obj.size())
+                    logger.info("Size is different: %s > %s" % (src_obj.size(), dest_obj.size()))
                     copy = True
                     partial = dest_obj.size()
 
             if not copy:
-                print "%s : SKIPPING copy to %s" % (src_path, dest_path)
+                logger.info("%s : SKIPPING copy to %s" % (src_path, dest_path))
                 continue
 
             # Open input file
             try:
                 src_file = src_obj.open(u'rb')
-            except: 
-                print "Could not open source path: "+src_path
+            except:
+                logger.warn("Could not open source path: %s" % src_path)
                 continue
 
             # Seek if needed
@@ -175,9 +178,9 @@ class Syncer(manager.Manager):
 
             dest_file = dest_obj.open(open_mode)
             if partial != 0:
-                print "%s: RESUMING transfer to %s" % (src_path, dest_path)
+                logger.info("%s: RESUMING transfer to %s" % (src_path, dest_path))
             else:
-                print "%s: COPYING to %s" % (src_path, dest_path)
+                logger.info("%s: COPYING to %s" % (src_path, dest_path))
 
             # Transfer content
             self.transfert_file(src_file, dest_file)
