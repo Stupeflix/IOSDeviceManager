@@ -51,7 +51,7 @@ class Manager(object):
             if full_info:
                 try:
                     s.connect(False)
-                    for key in ["ProductVersion", "BuildVersion", "DeviceName"]:
+                    for key in ["ProductVersion", "BuildVersion", "DeviceName", "ProductType"]:
                         info[key] = s.get_value(name=unicode(key))
                 except:
                     print "Warning: Could not connect to device to retrieve full information. device id: %s" % r
